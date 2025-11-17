@@ -47,6 +47,7 @@ Eenvoudige Home Assistant add-on: haalt golfhoogte (laatste meting) uit Rijkswat
 - Alleen waarden met `KWALITEITSWAARDE_CODE == "00"` worden als state gepubliceerd.
 - Sentinel/extreme waarden (`>= 99999` of > 400 cm) worden genegeerd en als `unknown` gepubliceerd zodat foutieve retains worden overschreven.
 - Status `ongecontroleerd`/`onbekend` wordt genegeerd; attributen blijven aanwezig voor debugging.
+- Waarden ouder dan 24 uur worden genegeerd (state wordt `unknown`).
 
 ## Checklist & troubleshooting (HA OS / Supervised)
 1) Broker login: zorg dat de Mosquitto add-on een gebruiker heeft (UI: voeg login toe; in `/mnt/data/supervisor/addons/data/core_mosquitto/options.json` moet `logins` niet leeg zijn).

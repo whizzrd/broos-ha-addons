@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import random
+from datetime import datetime, timezone, timedelta
 import time
 from dataclasses import dataclass
 from typing import Dict, List, Optional
@@ -20,6 +21,7 @@ CSV_URL = (
 
 OPTIONS_PATH = "/data/options.json"
 MIN_POLL_SECONDS = 600  # fair-use guardrail; data typically ~10m cadence
+MAX_AGE_HOURS = 24  # discard stale readings older than this
 
 logging.basicConfig(
     level=logging.INFO,
@@ -184,6 +186,19 @@ def is_valid_measurement(value: Optional[float], quality_code: Optional[str], st
     return True
 
 
+def is_fresh_enough(timestamp_str: str, max_age_hours: int = MAX_AGE_HOURS) -> bool:
+    """Return True if timestamp is within the max_age_hours window."""
+    if not timestamp_str:
+        return False
+    try:
+        dt = datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))
+    except Exception:
+        return False
+    now = datetime.now(timezone.utc)
+    age = now - dt.astimezone(timezone.utc)
+    return age <= timedelta(hours=max_age_hours)
+
+
 def main():
     cfg = AddonConfig.from_options()
     cfg.station_codes = normalize_station_codes(cfg.station_codes)
@@ -214,13 +229,14 @@ def main():
                     if not code:
                         continue
 
-                    if not is_valid_measurement(value, quality, status):
+                    if not is_valid_measurement(value, quality, status) or not is_fresh_enough(timestamp):
                         logger.debug(
-                            "Marking %s as unknown due to QA filter (value=%s, quality=%s, status=%s)",
+                            "Marking %s as unknown due to QA/age filter (value=%s, quality=%s, status=%s, timestamp=%s)",
                             code,
                             value,
                             quality,
                             status,
+                            timestamp,
                         )
                         value = None
 

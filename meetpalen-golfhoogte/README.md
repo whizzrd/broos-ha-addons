@@ -1,61 +1,59 @@
 # Meetpalen golfhoogte → Home Assistant (MQTT)
 
-Eenvoudige Home Assistant add-on: haalt golfhoogte (laatste meting) uit Rijkswaterstaat WFS CSV en publiceert sensoren via MQTT Discovery. Alles draait in één container; alleen een MQTT-broker is nodig.
+Eenvoudige add-on voor Home Assistant 2025: haalt golfhoogte (laatste meting) uit Rijkswaterstaat en publiceert sensoren via MQTT Discovery. Alleen een MQTT-broker is nodig (bijv. de standaard Mosquitto add-on).
 
-## Wat doet het
-- Brontype: WFS CSV `locatiesmetlaatstewaarneming` gefilterd op `golfhoogte`.
-- Publiceert per meetpaal een sensor met waarde (cm) en attribuut timestamp.
-- MQTT Discovery zorgt dat sensoren automatisch verschijnen in Home Assistant.
+## Wat je krijgt
+- Automatische entiteiten per meetpaal (naam “Golfhoogte <CODE>”, eenheid cm).
+- Attributen met timestamp en broninfo.
+- Add-on toont een melding in HA die uitlegt dat je de MQTT-integratie moet inschakelen; zonder die stap verschijnen de sensoren niet.
 
-## Installatie (HA OS / Supervised)
-1) Voeg deze repo toe aan de Add-on Store: Instellingen → Add-ons → Add-on Store → ⋮ → Repositories → `https://github.com/whizzrd/broos-ha-addons` → Add → Reload.
-2) Installeer de Mosquitto broker add-on en voeg een gebruiker toe (UI: gebruikers-tab in Mosquitto; of voeg login onder `logins`).
-3) Installeer “Meetpalen golfhoogte”.
-4) Configuratie invullen:
-   - `broker_host`: meestal `core-mosquitto` (zelfde host) of ander broker-adres.
-   - `broker_port`: 1883 (pas aan indien afwijkend).
-   - `mqtt_username` / `mqtt_password`: de broker-login uit stap 2.
-   - `mqtt_prefix`: laat op `homeassistant` voor discovery.
-   - `poll_interval_seconds`: minimaal 600 (10 minuten is de broncadans).
-   - `station_codes`: lijst, bijv. `["OSKS","MMND"]`; leeg = alle golfhoogte-stations.
-5) Save en Start; bekijk het logboek voor connectie/fetch.
-6) Ga naar Instellingen → Apparaten & Diensten en activeer de “MQTT” integratie (tegel “MQTT” onder Ontdekt → Inschakelen). Zonder integratie verschijnen de entiteiten niet. De add-on toont een melding in HA die naar deze stap verwijst.
+## Installatie – stap voor stap (niet-technisch)
+Volg exact deze volgorde in Home Assistant 2025.11:
 
-## Config veldreferentie
-- `broker_host` (str) — MQTT host.
-- `broker_port` (int, default 1883).
-- `mqtt_username` / `mqtt_password` (optioneel).
-- `mqtt_prefix` (default `homeassistant`) — discovery prefix.
-- `poll_interval_seconds` (default 600) — minimaal 600s enforced + jitter/backoff.
-- `station_codes` (array[str]) — filter op meetpaal CODE; leeg laat alles door.
+1) **Repository toevoegen**
+   - Instellingen → Add-ons → Add-on Store → ⋮ rechtsboven → Repositories.
+   - Plak `https://github.com/whizzrd/broos-ha-addons` → Add → Reload.
 
-## Werking / techniek
-- Endpoint:  
-  `https://geo.rijkswaterstaat.nl/services/ogc/hws/wmdc15/ows?SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=locatiesmetlaatstewaarneming&outputFormat=csv&FILTER=<Filter><PropertyIsLike escape='!' singleChar='.' wildCard='*'><PropertyName>PARAMETER_WAT_OMSCHRIJVING</PropertyName><Literal>*golfhoogte*</Literal></PropertyIsLike></Filter>`
-- Belangrijke velden: `CODE`, `WAARDE_LAATSTE_METING` (cm), `TIJDSTIP_LAATSTE_METING`, `EENHEIDCODE`, `PARAMETER_WAT_OMSCHRIJVING`.
-- MQTT topics: availability + per sensor state/attributes; discovery retained.
+2) **MQTT-broker installeren**
+   - Zoek “Mosquitto broker” → Installeren → Start.
+   - Open Configuratie van Mosquitto → Voeg een gebruiker toe (gebruikers-tab of veld `logins`). Kies een eenvoudige gebruikersnaam/wachtwoord en noteer deze.
 
-## Fair use
-- Bronupdate is ~10 minuten; de add-on handhaaft minimaal 600s polling met jitter en exponentiële backoff bij fouten om belasting te beperken.
+3) **Meetpalen add-on installeren**
+   - Zoek “Meetpalen golfhoogte” in de Add-on Store (na de reload) → Installeren.
+   - Configuratie invullen:
+     - `broker_host`: `core-mosquitto` (als de broker op dezelfde HA draait) of het IP/host van je broker.
+     - `broker_port`: 1883 (standaard).
+     - `mqtt_username` / `mqtt_password`: de login uit stap 2.
+     - `mqtt_prefix`: laten staan op `homeassistant` (voor discovery).
+     - `poll_interval_seconds`: laten staan op 600 (bron wordt ~10 min ververst).
+     - `station_codes`: leeg laten voor alle golfhoogte-stations; of bv. `["OSKS","MMND"]`.
+   - Klik Save → Start.
+   - Optioneel: schakel “Start on boot” en “Watchdog” in.
 
-## Uitbreidingen (optioneel)
-- Historische data via WaterWebservices POST (`OphalenWaarnemingen`, grootheid Hm0).
-- Converteer naar meters, meer parameters (bijv. piekperiode) als extra sensoren.
+4) **MQTT-integratie inschakelen (essentieel)**
+   - Ga naar Instellingen → Apparaten & Diensten.
+   - Onder “Ontdekt” zie je een tegel “MQTT” (als die niet zichtbaar is: even op Reload klikken).
+   - Klik de tegel → Inschakelen / Volgende / Gereed. Geen extra gegevens nodig als je Mosquitto op dezelfde HA hebt.
+   - Zonder deze stap verschijnen de sensoren niet, ook al draait de add-on. De add-on plaatst een notificatie die naar deze stap verwijst.
 
-## Kwaliteitscontrole
-- Alleen waarden met `KWALITEITSWAARDE_CODE == "00"` worden als state gepubliceerd.
-- Sentinel/extreme waarden (`>= 99999` of > 400 cm) worden genegeerd en als `unknown` gepubliceerd zodat foutieve retains worden overschreven.
-- Status `ongecontroleerd`/`onbekend` wordt genegeerd; attributen blijven aanwezig voor debugging.
-- Waarden ouder dan 24 uur worden genegeerd (state wordt `unknown`).
+5) **Sensoren bekijken**
+   - Instellingen → Apparaten & Diensten → tab Entiteiten → filter op `meetpaal_`.
+   - Voeg ze toe aan een dashboard: Overzicht → Bewerk dashboard → Kaart toevoegen → “Entiteiten” → selecteer de meetpaal-sensoren.
 
-## Checklist & troubleshooting (HA OS / Supervised)
-1) Broker login: zorg dat de Mosquitto add-on een gebruiker heeft (UI: voeg login toe; in `/mnt/data/supervisor/addons/data/core_mosquitto/options.json` moet `logins` niet leeg zijn).
-2) Voeg de MQTT-integratie toe in HA (Instellingen → Apparaten & Diensten → tegel “MQTT” → Add/Submit). Zonder integratie verschijnen de sensoren niet, ook al publiceert de add-on discovery.
-3) Lokale add-on zichtbaar? In de Add-on Store: ⋮ → Reload nadat de map onder `/mnt/data/supervisor/addons/local/` staat.
-4) MQTT auth errors (code 5): controleer user/wachtwoord in de add-on config en herstart Mosquitto + de meetpalen add-on.
-5) Geen entities zichtbaar? Reload de MQTT-integratie en check Developer tools → States met filter `meetpaal_`.
-6) Onrealistische waarden? QA-filter zet ze op `unknown`; bekijk attributen zoals `kwaliteitswaarde_code` en `statuswaarde`.
+## Veelvoorkomende vragen
+- **Ik zie geen entiteiten:** Controleer stap 4 (MQTT-integratie activeren) en herstart de meetpalen add-on. Kijk ook of je broker-gebruiker klopt.
+- **“MQTT connection failed / code 5”:** Verkeerde gebruikersnaam/wachtwoord of broker-host. Pas de add-on config aan en herstart zowel Mosquitto als de meetpalen add-on.
+- **Onrealistische waarden (bijv. 999999 cm):** De add-on stuurt dan `unknown` om de fout te overschrijven. QA-filter blokkeert waarden ≥ 99999 cm, > 400 cm, of zonder kwaliteitscode “00”, en met status “ongecontroleerd/onbekend”. Metingen ouder dan 24 uur worden ook genegeerd.
+- **Polling-frequentie:** Minimaal 600 seconden met jitter/backoff, zodat de bron niet overbelast raakt.
 
-## Is dit haalbaar voor niet-technische gebruikers?
-- Vereist nog handmatige stappen in de HA UI: brokergebruiker aanmaken én de MQTT-integratie toevoegen. Zonder die twee komen de sensoren niet door, wat voor niet-technische gebruikers verwarrend is.
-- Voor “plug-and-play” zouden extra hulpmiddelen nodig zijn (bijv. add-on repository met vooraf ingestelde credentials + automatische MQTT-integratie via Supervisor API). In de huidige vorm is een korte install-checklist of begeleiding aanbevolen.
+## Technische details (ter info)
+- Bron: Rijkswaterstaat WFS CSV `locatiesmetlaatstewaarneming`, filter op `PARAMETER_WAT_OMSCHRIJVING` bevat `golfhoogte`.
+- Discovery: MQTT discovery met prefix `homeassistant`; retained config + retained state/attributes.
+- Beschikbaarheid: `homeassistant/meetpalen/availability` (online/offline).
+- Timestamps: direct uit de bron; metingen ouder dan 24 uur worden op `unknown` gezet.
+
+## Problemen oplossen (kort)
+1) Broker-user ontbreekt? Voeg een login toe in Mosquitto en herstart.
+2) MQTT-integratie niet actief? Instellingen → Apparaten & Diensten → Ontdekt → MQTT → Inschakelen.
+3) Nog steeds geen entiteiten? Herstart de meetpalen add-on en de MQTT-integratie; controleer de add-on log.
+4) Oude foutieve waarden? Na de QA-filter wordt `unknown` gepubliceerd; wacht één polling-cyclus of herstart de add-on.

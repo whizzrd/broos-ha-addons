@@ -7,38 +7,46 @@ Eenvoudige add-on voor Home Assistant 2025: haalt golfhoogte (laatste meting) ui
 - Attributen met timestamp en broninfo.
 - Add-on toont een melding in HA die uitlegt dat je de MQTT-integratie moet inschakelen; zonder die stap verschijnen de sensoren niet.
 
-## Installatie – stap voor stap (niet-technisch)
-Volg exact deze volgorde in Home Assistant 2025.11:
+## Installatie – stap voor stap (niet-technisch, Home Assistant 2025.11)
+Volg elke klik; niets via terminal nodig.
 
 1) **Repository toevoegen**
-   - Instellingen → Add-ons → Add-on Store → ⋮ rechtsboven → Repositories.
-   - Plak `https://github.com/whizzrd/broos-ha-addons` → Add → Reload.
+   - Open HA → linkerzijbalk: **Instellingen** → **Add-ons** → **Add-on Store**.
+   - Rechtsboven: **⋮** → **Repositories**.
+   - Plak deze link: `https://github.com/whizzrd/broos-ha-addons` → **Add** → daarna **Reload**.
 
-2) **MQTT-broker installeren**
-   - Zoek “Mosquitto broker” → Installeren → Start.
-   - Open Configuratie van Mosquitto → Voeg een gebruiker toe (gebruikers-tab of veld `logins`). Kies een eenvoudige gebruikersnaam/wachtwoord en noteer deze.
+2) **MQTT-broker installeren en gebruiker maken**
+   - In de Add-on Store: zoek **“Mosquitto broker”** → klik erop → **Installeren** → na installatie: **Start**.
+   - Klik **Configuratie** (tab in de Mosquitto add-on).
+   - Onder **Gebruikers**: klik **+ Gebruiker toevoegen**.
+     - Kies een gebruikersnaam, bv. `mqttuser`.
+     - Kies een wachtwoord, bv. `mqttpass`.
+     - Klik **Opslaan**. Deze gegevens heb je zo nodig.
 
-3) **Meetpalen add-on installeren**
-   - Zoek “Meetpalen golfhoogte” in de Add-on Store (na de reload) → Installeren.
-   - Configuratie invullen:
-     - `broker_host`: `core-mosquitto` (als de broker op dezelfde HA draait) of het IP/host van je broker.
-     - `broker_port`: 1883 (standaard).
-     - `mqtt_username` / `mqtt_password`: de login uit stap 2.
-     - `mqtt_prefix`: laten staan op `homeassistant` (voor discovery).
-     - `poll_interval_seconds`: laten staan op 600 (bron wordt ~10 min ververst).
-     - `station_codes`: leeg laten voor alle golfhoogte-stations; of bv. `["OSKS","MMND"]`.
-   - Klik Save → Start.
-   - Optioneel: schakel “Start on boot” en “Watchdog” in.
+3) **Meetpalen add-on installeren en instellen**
+   - Terug naar de Add-on Store: zoek **“Meetpalen golfhoogte”** → klik → **Installeren**.
+   - Na installatie: open tab **Configuratie** en vul in:
+     - `broker_host`: `core-mosquitto` (als de broker op dezelfde HA draait). Alleen wijzigen als je een externe broker hebt.
+     - `broker_port`: **1883** laten staan.
+     - `mqtt_username`: de gebruikersnaam uit stap 2 (bijv. `mqttuser`).
+     - `mqtt_password`: het wachtwoord uit stap 2 (bijv. `mqttpass`).
+     - `mqtt_prefix`: laten staan op `homeassistant`.
+     - `poll_interval_seconds`: laten staan op **600**.
+     - `station_codes`: leeg laten voor alle stations, of vul codes in zoals `["OSKS","MMND"]`.
+   - Klik **Opslaan**.
+   - Ga naar tab **Info** → zet aan: **Start on boot** en **Watchdog** (optioneel maar handig).
+   - Klik **Start** om de add-on te draaien.
 
-4) **MQTT-integratie inschakelen (essentieel)**
-   - Ga naar Instellingen → Apparaten & Diensten.
-   - Onder “Ontdekt” zie je een tegel “MQTT” (als die niet zichtbaar is: even op Reload klikken).
-   - Klik de tegel → Inschakelen / Volgende / Gereed. Geen extra gegevens nodig als je Mosquitto op dezelfde HA hebt.
-   - Zonder deze stap verschijnen de sensoren niet, ook al draait de add-on. De add-on plaatst een notificatie die naar deze stap verwijst.
+4) **MQTT-integratie inschakelen (anders geen sensoren)**
+   - Linkerzijbalk: **Instellingen** → **Apparaten & Diensten**.
+   - Wacht 5–10 seconden; onder kopje **Ontdekt** verschijnt een tegel **MQTT**.
+   - Klik de tegel **MQTT** → **Inschakelen** (of **Configureer** → **Inschakelen** → **Volgende** → **Gereed**).
+   - Als de tegel niet verschijnt: klik rechtsboven **Reload** en kijk opnieuw. De add-on stuurt ook een melding die naar deze stap verwijst.
 
-5) **Sensoren bekijken**
-   - Instellingen → Apparaten & Diensten → tab Entiteiten → filter op `meetpaal_`.
-   - Voeg ze toe aan een dashboard: Overzicht → Bewerk dashboard → Kaart toevoegen → “Entiteiten” → selecteer de meetpaal-sensoren.
+5) **Sensoren vinden en op een dashboard zetten**
+   - **Instellingen** → **Apparaten & Diensten** → tab **Entiteiten**.
+   - Zoek op `meetpaal_` in de zoekbalk. Je ziet de meetpaal-sensoren (bijv. `sensor.meetpalen_oskx_golfhoogte`).
+   - Voeg ze toe aan een dashboard: **Overzicht** → rechtsboven **Bewerken dashboard** → **Kaart toevoegen** → kies kaart **Entiteiten** → selecteer de meetpaal-sensoren → **Opslaan**.
 
 ## Veelvoorkomende vragen
 - **Ik zie geen entiteiten:** Controleer stap 4 (MQTT-integratie activeren) en herstart de meetpalen add-on. Kijk ook of je broker-gebruiker klopt.

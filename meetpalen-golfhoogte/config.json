@@ -1,6 +1,6 @@
 {
   "name": "Meetpalen golfhoogte",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "slug": "meetpalen-golfhoogte",
   "description": "Leest golfhoogte uit Rijkswaterstaat (WaterWebservices WFS CSV) en publiceert naar Home Assistant via MQTT discovery.",
   "arch": ["amd64", "armv7", "aarch64"],

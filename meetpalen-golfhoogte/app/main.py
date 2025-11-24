@@ -8,6 +8,7 @@ from datetime import datetime, timezone, timedelta
 import time
 from dataclasses import dataclass
 from typing import Dict, List, Optional
+from functools import lru_cache
 
 import paho.mqtt.client as mqtt
 import requests
@@ -199,12 +200,50 @@ def is_fresh_enough(timestamp_str: str, max_age_hours: int = MAX_AGE_HOURS) -> b
     return age <= timedelta(hours=max_age_hours)
 
 
+@lru_cache(maxsize=1)
+def _supervisor_token() -> Optional[str]:
+    return os.getenv("SUPERVISOR_TOKEN")
+
+
+def notify_setup_needed():
+    """
+    Drop a persistent notification in HA to guide users to add the MQTT integration.
+    Uses Supervisor token; no-op if token is unavailable.
+    """
+    token = _supervisor_token()
+    if not token:
+        logger.debug("Supervisor token not available; skipping notification")
+        return
+
+    url = "http://supervisor/core/api/services/persistent_notification/create"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "title": "Meetpalen golfhoogte",
+        "message": (
+            "Zorg dat de MQTT-integratie actief is: Instellingen → Apparaten & Diensten → "
+            "Ontdekt → MQTT → Inschakelen. Zonder integratie verschijnen de meetpaal-sensoren niet."
+        ),
+        "notification_id": "meetpalen_golfhoogte_setup",
+    }
+
+    try:
+        resp = requests.post(url, headers=headers, json=payload, timeout=10)
+        if resp.status_code >= 400:
+            logger.debug("Notification post failed: %s %s", resp.status_code, resp.text)
+    except Exception as err:  # noqa: BLE001
+        logger.debug("Unable to send persistent notification: %s", err)
+
+
 def main():
     cfg = AddonConfig.from_options()
     cfg.station_codes = normalize_station_codes(cfg.station_codes)
     logger.info("Starting Meetpalen golfhoogte add-on")
     client = build_mqtt_client(cfg)
     publish_availability(client, cfg, "online")
+    notify_setup_needed()
 
     base_interval = max(MIN_POLL_SECONDS, cfg.poll_interval_seconds)
     consecutive_failures = 0

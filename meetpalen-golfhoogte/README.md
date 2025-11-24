@@ -8,19 +8,18 @@ Eenvoudige Home Assistant add-on: haalt golfhoogte (laatste meting) uit Rijkswat
 - MQTT Discovery zorgt dat sensoren automatisch verschijnen in Home Assistant.
 
 ## Installatie (HA OS / Supervised)
-1) Zorg dat de MQTT-broker draait (bijv. Mosquitto add-on) en noteer user/wachtwoord (voeg een login toe in de broker UI).
-2) Kopieer deze repo-map naar je HA host: `/addons/meetpalen-golfhoogte/` (of `/mnt/data/supervisor/addons/local/meetpalen-golfhoogte/`).
-3) In HA: Instellingen → Add-ons → Add-on Store → ⋮ → Reload (lokale add-ons zichtbaar maken).
-4) Vind “Meetpalen golfhoogte” en klik Install.
-5) Open Configuratie en vul in:
-   - `broker_host`: meestal `core-mosquitto` of adres van je broker.
+1) Voeg deze repo toe aan de Add-on Store: Instellingen → Add-ons → Add-on Store → ⋮ → Repositories → `https://github.com/whizzrd/broos-ha-addons` → Add → Reload.
+2) Installeer de Mosquitto broker add-on en voeg een gebruiker toe (UI: gebruikers-tab in Mosquitto; of voeg login onder `logins`).
+3) Installeer “Meetpalen golfhoogte”.
+4) Configuratie invullen:
+   - `broker_host`: meestal `core-mosquitto` (zelfde host) of ander broker-adres.
    - `broker_port`: 1883 (pas aan indien afwijkend).
-   - `mqtt_username` / `mqtt_password`: vereist als je broker auth nodig heeft.
+   - `mqtt_username` / `mqtt_password`: de broker-login uit stap 2.
    - `mqtt_prefix`: laat op `homeassistant` voor discovery.
-   - `poll_interval_seconds`: kies ≥ 600 (10 minuten is de broncadans).
+   - `poll_interval_seconds`: minimaal 600 (10 minuten is de broncadans).
    - `station_codes`: lijst, bijv. `["OSKS","MMND"]`; leeg = alle golfhoogte-stations.
-6) Save en Start; bekijk het logboek voor connectie/fetch.
-7) Ga naar Instellingen → Apparaten & Diensten en voeg de “MQTT” integratie toe (clic op de “MQTT” discovery-tegel en Submit). Zonder deze stap verschijnen de entiteiten niet, ook al publiceert de add-on discovery.
+5) Save en Start; bekijk het logboek voor connectie/fetch.
+6) Ga naar Instellingen → Apparaten & Diensten en activeer de “MQTT” integratie (tegel “MQTT” onder Ontdekt → Inschakelen). Zonder integratie verschijnen de entiteiten niet. De add-on toont een melding in HA die naar deze stap verwijst.
 
 ## Config veldreferentie
 - `broker_host` (str) — MQTT host.

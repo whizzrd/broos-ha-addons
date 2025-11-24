@@ -38,7 +38,7 @@ class AddonConfig:
     mqtt_username: Optional[str] = None
     mqtt_password: Optional[str] = None
     mqtt_prefix: str = "homeassistant"
-    poll_interval_seconds: int = 300
+    poll_interval_seconds: int = 600
     station_codes: Optional[List[str]] = None
 
     @staticmethod
@@ -51,7 +51,7 @@ class AddonConfig:
             mqtt_username=raw.get("mqtt_username"),
             mqtt_password=raw.get("mqtt_password"),
             mqtt_prefix=raw.get("mqtt_prefix", "homeassistant"),
-            poll_interval_seconds=int(raw.get("poll_interval_seconds", 300) or 300),
+            poll_interval_seconds=int(raw.get("poll_interval_seconds", 600) or 600),
             station_codes=raw.get("station_codes"),
         )
 

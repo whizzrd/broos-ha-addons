@@ -45,7 +45,7 @@ Volg elke klik; niets via terminal nodig.
 
 5) **Sensoren vinden en op een dashboard zetten**
    - **Instellingen** → **Apparaten & Diensten** → tab **Entiteiten**.
-   - Zoek op `meetpaal_` in de zoekbalk. Je ziet de meetpaal-sensoren (bijv. `sensor.meetpalen_oskx_golfhoogte`).
+   - Zoek op `meetpalen_` in de zoekbalk. Je ziet de meetpaal-sensoren (bijv. `sensor.meetpalen_oskx_golfhoogte`).
    - Voeg ze toe aan een dashboard: **Overzicht** → rechtsboven **Bewerken dashboard** → **Kaart toevoegen** → kies kaart **Entiteiten** → selecteer de meetpaal-sensoren → **Opslaan**.
 
 ## Veelvoorkomende vragen

@@ -48,6 +48,7 @@ Volg elke klik; niets via terminal nodig. Benamingen kunnen iets afwijken per ta
    - Zoek op `meetpalen_` in de zoekbalk. Je ziet de meetpaal-sensoren (bijv. `sensor.meetpalen_oskx_golfhoogte`).
    - Voeg ze toe aan een dashboard: **Overzicht** → rechtsboven **Bewerken dashboard**/**Edit dashboard** → **Kaart toevoegen** → kies kaart **Entiteiten** → selecteer de meetpaal-sensoren → **Opslaan**/**Save**.
 
+
 ## Veelvoorkomende vragen
 - **Ik zie geen entiteiten:** Controleer stap 4 (MQTT-integratie activeren) en herstart de meetpalen add-on. Kijk ook of je broker-gebruiker klopt.
 - **“MQTT connection failed / code 5”:** Verkeerde gebruikersnaam/wachtwoord of broker-host. Pas de add-on config aan en herstart zowel Mosquitto als de meetpalen add-on.

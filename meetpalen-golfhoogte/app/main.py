@@ -94,8 +94,10 @@ def normalize_station_codes(codes: Optional[List[str]]) -> Optional[List[str]]:
 def publish_discovery(client: mqtt.Client, cfg: AddonConfig, code: str, name: str, unit: str, state_topic: str, attr_topic: str, availability_topic: str):
     object_id = f"meetpalen_{code.lower()}_golfhoogte"
     topic = f"{cfg.mqtt_prefix}/sensor/{object_id}/config"
+    sensor_name = name or f"Golfhoogte {code}"
+    device_name = f"{name} ({code})" if name else f"Meetpaal {code}"
     payload = {
-        "name": f"Golfhoogte {code}",
+        "name": sensor_name,
         "unique_id": object_id,
         "state_topic": state_topic,
         "availability_topic": availability_topic,
@@ -106,7 +108,7 @@ def publish_discovery(client: mqtt.Client, cfg: AddonConfig, code: str, name: st
             "identifiers": [f"meetpalen_{code}"],
             "manufacturer": "Rijkswaterstaat",
             "model": "WaterWebservices WFS",
-            "name": f"Meetpaal {code}",
+            "name": device_name,
         },
         "json_attributes_topic": attr_topic,
     }

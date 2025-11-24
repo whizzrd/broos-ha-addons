@@ -31,6 +31,14 @@ logging.basicConfig(
 logger = logging.getLogger("meetpalen-golfhoogte")
 
 
+def _coalesce_blank(value, default):
+    if value is None:
+        return default
+    if isinstance(value, str) and not value.strip():
+        return default
+    return value
+
+
 @dataclass
 class AddonConfig:
     broker_host: str
@@ -46,11 +54,11 @@ class AddonConfig:
         with open(path, "r", encoding="utf-8") as f:
             raw = json.load(f)
         return AddonConfig(
-            broker_host=raw.get("broker_host", "mqtt"),
+            broker_host=_coalesce_blank(raw.get("broker_host"), "core-mosquitto"),
             broker_port=int(raw.get("broker_port", 1883) or 1883),
             mqtt_username=raw.get("mqtt_username"),
             mqtt_password=raw.get("mqtt_password"),
-            mqtt_prefix=raw.get("mqtt_prefix", "homeassistant"),
+            mqtt_prefix=_coalesce_blank(raw.get("mqtt_prefix"), "homeassistant"),
             poll_interval_seconds=int(raw.get("poll_interval_seconds", 600) or 600),
             station_codes=raw.get("station_codes"),
         )

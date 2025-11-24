@@ -32,10 +32,30 @@ Volg elke klik; niets via terminal nodig. Benamingen kunnen iets afwijken per ta
      - `mqtt_password`: het wachtwoord uit stap 2 (bijv. `mqttpass`).
      - `mqtt_prefix`: laten staan op `homeassistant` (leeg veld wordt ook automatisch `homeassistant`).
      - `poll_interval_seconds`: laten staan op **600** (getal in seconden).
-     - `station_codes`: het veld lijkt verplicht in de UI; voer minimaal één code in, bijvoorbeeld `["OSKS"]`. Wil je alle stations ophalen, vul een korte lijst in (bijv. `["OSKS","MMND"]`); de add-on filtert niets als je het veld leeg laat in `options.json`, maar de HA-editor accepteert geen volledig leeg veld.
+     - `station_codes`: het veld lijkt verplicht in de UI; voer minimaal één code in. Je kunt de kant-en-klare lijst hieronder kopiëren zodat alle gangbare golfmeetstations meteen worden gepubliceerd.
    - Klik **Opslaan**/**Save**. Controleer of er geen rode foutmeldingen meer staan.
    - Ga naar tab **Info** → zet aan: **Start on boot**/**Opstarten** en **Watchdog** (optioneel maar handig).
    - Klik **Start** om de add-on te draaien. Wacht tot de status op **Running**/**Actief** komt te staan.
+
+### Kant-en-klare lijst met golfmeetstations
+Home Assistant dwingt een niet-lege `station_codes`-waarde af. Plak onderstaande JSON direct in het veld om alle courante golfhoogte-meetpunten (Rijkswaterstaat, november 2025) te ontvangen. Je mag de lijst later inkorten tot de stations die je echt nodig hebt.
+
+```
+["EPL","LEG","HKVH","IJMD","MPN","OSKS","MMND","K13","ODNZ","VLIS"]
+```
+
+| Code  | Locatie / omschrijving              |
+|-------|-------------------------------------|
+| EPL   | Europlatform (Noordzee)             |
+| LEG   | Lichteiland Goeree                  |
+| HKVH  | Hoek van Holland                    |
+| IJMD  | IJmuiden Munitiestort               |
+| MPN   | Meetpost Noordwijk                  |
+| OSKS  | Oosterscheldekering Schouwen        |
+| MMND  | Maasmonding Noord                   |
+| K13   | Boorplatform K13 (Noordzee)         |
+| ODNZ  | Oudeschild Noordzee                 |
+| VLIS  | Vlissingen boei (Westerschelde)     |
 
 4) **MQTT-integratie inschakelen (anders geen sensoren)**
    - Linkerzijbalk: **Instellingen** → **Apparaten & Diensten**.

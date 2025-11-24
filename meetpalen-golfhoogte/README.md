@@ -3,7 +3,7 @@
 Eenvoudige add-on voor Home Assistant 2025: haalt golfhoogte (laatste meting) uit Rijkswaterstaat en publiceert sensoren via MQTT Discovery. Alleen een MQTT-broker is nodig (bijv. de standaard Mosquitto add-on).
 
 ## Wat je krijgt
-- Automatische entiteiten per meetpaal (naam “Golfhoogte <CODE>”, eenheid cm).
+- Automatische entiteiten per meetpaal (naam `Golfhoogte <CODE>`, eenheid cm).
 - Attributen met timestamp en broninfo.
 - Add-on toont een melding in HA die uitlegt dat je de MQTT-integratie moet inschakelen; zonder die stap verschijnen de sensoren niet.
 

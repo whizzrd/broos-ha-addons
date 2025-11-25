@@ -45,6 +45,8 @@ Home Assistant dwingt een niet-lege `station_codes`-waarde af. Plak onderstaande
 ["EPL","LEG","HKVH","IJMD","MPN","OSKS","MMND","K13","ODNZ","VLIS"]
 ```
 
+> IJsselmeer/Markermeer: de RWS-laag `locatiesmetlaatstewaarneming` bevat wel golfhoogte-meetpalen (bijv. `IJSSMMPL02`, `09`, `26`, `29`, `37`, `42`, `44`, `46`, `47`, `48`, `49`), maar alle laatst gemeten timestamps zijn oud (2007–2019). De add-on filtert metingen ouder dan 24 uur weg, dus deze stations verschijnen niet en tonen geen kaart. Voeg ze niet toe aan `station_codes` tenzij de bron opnieuw actuele golfhoogte publiceert.
+
 | Code  | Locatie / omschrijving              |
 |-------|-------------------------------------|
 | EPL   | Europlatform (Noordzee)             |

@@ -31,4 +31,5 @@
 
 ## Agent-Specific Notes
 - Network access may be restricted; push/pull via `git@github.com:whizzrd/broos-ha-addons.git`.
-- HA-side actions happen via the UI/Supervisor; avoid editing HA data paths unless explicitly instructed. 
+- HA-side actions happen via the UI/Supervisor; avoid editing HA data paths unless explicitly instructed.
+- Bump the add-on `config.json` version for **any** change (ook alleen documentatie), anders ziet de HA Add-on Store geen update en wordt nieuwe README-tekst niet getoond.

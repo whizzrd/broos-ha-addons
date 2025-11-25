@@ -102,8 +102,10 @@ def normalize_station_codes(codes: Optional[List[str]]) -> Optional[List[str]]:
 def publish_discovery(client: mqtt.Client, cfg: AddonConfig, code: str, name: str, unit: str, state_topic: str, attr_topic: str, availability_topic: str):
     object_id = f"meetpalen_{code.lower()}_golfhoogte"
     topic = f"{cfg.mqtt_prefix}/sensor/{object_id}/config"
-    sensor_name = name or f"Golfhoogte {code}"
-    device_name = f"{name} ({code})" if name else f"Meetpaal {code}"
+    # Put station code first so the dashboard keeps names short and scannable.
+    base_label = name or "Golfhoogte"
+    sensor_name = f"{code} - {base_label}"
+    device_name = f"{code} - {base_label}"
     payload = {
         "name": sensor_name,
         "unique_id": object_id,
@@ -175,7 +177,7 @@ def is_valid_measurement(value: Optional[float], quality_code: Optional[str], st
     Apply basic QA:
     - quality code must be "00" (valid)
     - skip sentinel/extreme values
-    - skip unchecked/unknown status
+    - skip explicit unknown status; allow "ongecontroleerd" so recent data is not hidden
     """
     if value is None:
         return False
@@ -190,8 +192,8 @@ def is_valid_measurement(value: Optional[float], quality_code: Optional[str], st
     if value > 400:
         return False
 
-    # Treat unchecked/unknown status as invalid to keep feed clean
-    if status and status.strip().lower() in {"ongecontroleerd", "onbekend"}:
+    # Treat explicit unknown as invalid; allow "ongecontroleerd" so fresh data still shows up
+    if status and status.strip().lower() in {"onbekend"}:
         return False
 
     return True
@@ -288,6 +290,11 @@ def main():
                             timestamp,
                         )
                         value = None
+
+                    # Convert cm → m to keep states readable; leave other units intact.
+                    if value is not None and unit.lower() == "cm":
+                        value = value / 100.0
+                        unit = "m"
 
                     publish_state(
                         client=client,
